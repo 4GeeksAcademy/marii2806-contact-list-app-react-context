@@ -1,42 +1,75 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			listContacts: []
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
+			getAllAgenda: () => {
+				fetch("https://playground.4geeks.com/apis/fake/contact/agenda/marii2806")
+					.then(response => response.json())
+					.then(data => {
+						console.log(data)
+						setStore({ listContacts: data })
+					})
+					.catch(error => console.log(error));
 			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
+			createContact: newContact => {
+				console.log(newContact);
+				fetch("https://playground.4geeks.com/apis/fake/contact/", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(newContact)
+				})
+					.then(response => {
+						console.log(response.status);
+						if (response.status === 201) {
+							alert("Contact created succesfully");
+						}
+						return response.json();
+					})
+					.then(data => console.log(data))
+					.catch(error => console.log(error));
 			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
-
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
-
-				//reset the global store
-				setStore({ demo: demo });
+			deleteContact: contactId => {
+				console.log(contactId);
+				fetch(`https://playground.4geeks.com/apis/fake/contact/${contactId}`, {
+					method: "DELETE"
+				})
+					.then(response => {
+						console.log(response.status);
+						if (response.status === 201) {
+							getActions().getAllAgenda();
+						}
+						return response.json();
+					})
+					.then(data => console.log(data))
+					.catch(error => console.log(error));
+			},
+			updateContact: (contactId, updateData) => {
+				updateData.agenda_slug = "marii2806";
+				fetch(`https://playground.4geeks.com/apis/fake/contact/${contactId}`, {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(updateData)
+				})
+					.then(response => {
+						console.log(response.status);
+						if (response.status === 201) {
+							getActions().getAllAgenda();
+						}
+						return response.json();
+					})
+					.then(data => console.log(data))
+					.catch(error => {
+						console.log(error);
+						if (error.response && error.response.status === 400) {
+							console.log("Error 400: Bad Request");
+						}
+					});
 			}
 		}
 	};
