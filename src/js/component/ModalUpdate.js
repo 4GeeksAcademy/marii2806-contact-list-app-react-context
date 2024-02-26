@@ -15,7 +15,7 @@ export const ModalUpdate = props => {
 		const data = {
 			name: name,
 			email: email,
-			agenda_slug: "velazcoCarlos",
+			agenda_slug: "marii2806",
 			phone: phone,
 			address: address
 		};
